@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load moeda %}
+{% block titulo %}Prestação de contas — HUIOS GESTÃO{% endblock %}
+{% block conteudo %}
+  <h1>Prestação de contas</h1><p class="descricao">Lançamentos manuais registrados por usuários autorizados.</p>
+  {% if perms.ct.add_movimentacaofinanceira %}<a class="btn primario" href="{% url 'movimentacao_nova' %}">+ Registrar entrada ou saída</a>{% endif %}
+  <form class="cartao filtros-data" method="get"><div class="campo"><label for="inicio">Data inicial</label><input type="date" name="inicio" id="inicio" value="{{ inicio }}"></div><div class="campo"><label for="fim">Data final</label><input type="date" name="fim" id="fim" value="{{ fim }}"></div><button class="btn secundario" type="submit">Filtrar período</button></form>
+  <div class="indicadores"><div class="indicador"><span>Entradas</span><strong>{{ entradas|reais }}</strong></div><div class="indicador"><span>Saídas</span><strong>{{ saidas|reais }}</strong></div><div class="indicador"><span>Saldo</span><strong>{{ saldo|reais }}</strong></div></div>
+  <h2>Movimentações</h2><div class="lista">{% for movimento in movimentos %}<article class="item"><strong>{{ movimento.descricao }}</strong><p>{{ movimento.get_tipo_display }} — {{ movimento.valor_centavos|reais }}</p><small>Data: {{ movimento.data_movimentacao|date:'d/m/Y' }}</small></article>{% empty %}<p class="cartao">Sem movimentações neste período.</p>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load moeda %}
+{% block titulo %}Necessidade {{ necessidade.pk }} — HUIOS GESTÃO{% endblock %}
+{% block conteudo %}
+  <a href="{% url 'painel' %}" class="voltar">← Ver necessidades</a>
+  <div class="alerta sucesso" role="status">✓ Registro disponível para acompanhamento</div>
+  <h1>Detalhes da demanda</h1><div class="cartao">
+    <dl class="detalhes"><dt>Número do registro</dt><dd>Nº {{ necessidade.pk }}</dd><dt>Título</dt><dd>{{ necessidade.titulo }}</dd><dt>Categoria</dt><dd>{{ necessidade.get_categoria_display }}</dd><dt>Prioridade</dt><dd>{{ necessidade.get_prioridade_display }}</dd><dt>Situação</dt><dd>{{ necessidade.get_situacao_display }}</dd><dt>Custo estimado</dt><dd>{{ necessidade.custo_estimado_centavos|reais }}</dd><dt>Responsável</dt><dd>{% if necessidade.responsavel %}{{ necessidade.responsavel.username }}{% else %}Não definido{% endif %}</dd><dt>Descrição</dt><dd>{{ necessidade.descricao|default:"Não informada" }}</dd></dl>
+  </div>
+  {% if perms.ct.change_necessidade %}<form method="post" action="{% url 'necessidade_situacao' necessidade.pk %}" class="cartao campo">{% csrf_token %}<label for="situacao">Atualizar situação</label><select id="situacao" name="situacao"><option value="ABERTA" {% if necessidade.situacao == 'ABERTA' %}selected{% endif %}>Aberta</option><option value="EM_ANDAMENTO" {% if necessidade.situacao == 'EM_ANDAMENTO' %}selected{% endif %}>Em andamento</option><option value="CONCLUIDA" {% if necessidade.situacao == 'CONCLUIDA' %}selected{% endif %}>Concluída</option></select><button class="btn primario" type="submit">Salvar situação</button></form>{% endif %}
+  {% if perms.ct.view_movimentacaofinanceira %}<a class="btn secundario" href="{% url 'resumo_financeiro' %}">Consultar prestação de contas</a>{% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% load moeda %}
+{% block titulo %}Painel do CT — HUIOS GESTÃO{% endblock %}
+{% block conteudo %}
+  <p class="sobretitulo">VISÃO GERAL</p><h1>Painel do CT</h1><p class="descricao">Organize as necessidades e melhorias do centro de treinamento.</p>
+  <section class="destaque"><p>GESTÃO DE MELHORIAS</p><h2>O que o nosso CT precisa hoje?</h2>{% if perms.ct.add_necessidade %}<a class="btn branco" href="{% url 'necessidade_nova' %}">+ Nova necessidade</a>{% else %}<span>Consulta de necessidades</span>{% endif %}</section>
+  <section class="indicadores" aria-label="Totais por situação">
+    <div class="indicador"><strong>{{ abertas }}</strong><span>○ Abertas</span></div>
+    <div class="indicador"><strong>{{ andamento }}</strong><span>◷ Em andamento</span></div>
+    <div class="indicador"><strong>{{ concluidas }}</strong><span>✓ Concluídas</span></div>
+  </section>
+  <section id="necessidades">
+    <h2>Necessidades do CT</h2>
+    <nav aria-label="Filtros por situação" class="filtros">
+      <a {% if not situacao_ativa %}aria-current="page"{% endif %} href="{% url 'painel' %}#necessidades">Todas</a>
+      <a {% if situacao_ativa == 'ABERTA' %}aria-current="page"{% endif %} href="?situacao=ABERTA#necessidades">Abertas</a>
+      <a {% if situacao_ativa == 'EM_ANDAMENTO' %}aria-current="page"{% endif %} href="?situacao=EM_ANDAMENTO#necessidades">Em andamento</a>
+      <a {% if situacao_ativa == 'CONCLUIDA' %}aria-current="page"{% endif %} href="?situacao=CONCLUIDA#necessidades">Concluídas</a>
+    </nav>
+    <div class="lista">{% for necessidade in necessidades %}
+      <a href="{% url 'necessidade_detalhe' necessidade.pk %}" class="item"><div class="item-titulo"><strong>{{ necessidade.titulo }}</strong><span class="estado">{{ necessidade.get_situacao_display }}</span></div><p>{{ necessidade.get_categoria_display }} · {{ necessidade.custo_estimado_centavos|reais }}</p><small>Prioridade: {{ necessidade.get_prioridade_display }}{% if necessidade.responsavel %} · Responsável: {{ necessidade.responsavel.username }}{% endif %}</small></a>
+    {% empty %}<p class="cartao">Nenhuma necessidade encontrada para este filtro.</p>{% endfor %}</div>
+  </section>
+{% endblock %}

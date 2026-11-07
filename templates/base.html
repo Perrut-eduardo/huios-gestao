@@ -1,0 +1,33 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block titulo %}HUIOS GESTÃO{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'ct/site.css' %}">
+</head>
+<body>
+<div class="app">
+  <header class="cabecalho">
+    <a class="marca" href="{% url 'painel' %}" aria-label="HUIOS GESTÃO, início"><span class="logomarca" aria-hidden="true">H</span><span>HUIOS <em>GESTÃO</em><small>PROJETO SOCIAL • BJJ</small></span></a>
+    {% if request.user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button class="btn sair" type="submit">Sair</button></form>
+    {% endif %}
+  </header>
+  <main id="conteudo">
+    <div class="meta">{% if request.user.is_authenticated %}Perfil: {% if perms.ct.add_movimentacaofinanceira %}Coordenação{% else %}Professor / consulta{% endif %}{% endif %}<span>Ambiente acadêmico — use dados fictícios</span></div>
+    {% if messages %}<div aria-live="polite">{% for message in messages %}<p class="alerta {% if message.tags == 'error' %}erro{% else %}sucesso{% endif %}">{{ message }}</p>{% endfor %}</div>{% endif %}
+    {% block conteudo %}{% endblock %}
+  </main>
+  {% if request.user.is_authenticated %}
+  <nav class="rodape" aria-label="Navegação principal">
+    <a href="{% url 'painel' %}">Painel</a>
+    <a href="{% url 'painel' %}#necessidades">Necessidades</a>
+    {% if perms.ct.view_campanha %}<a href="{% url 'campanhas' %}">Campanhas</a>{% endif %}
+    {% if perms.ct.view_movimentacaofinanceira %}<a href="{% url 'resumo_financeiro' %}">Contas</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+</body>
+</html>

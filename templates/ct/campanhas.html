@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load moeda %}
+{% block titulo %}Campanhas — HUIOS GESTÃO{% endblock %}
+{% block conteudo %}
+  <h1>Campanhas</h1><p class="descricao">Acompanhe iniciativas de arrecadação para o CT.</p>
+  {% if perms.ct.add_campanha %}<a class="btn primario" href="{% url 'campanha_nova' %}">+ Nova campanha</a>{% endif %}
+  <div class="lista">{% for campanha in campanhas %}<article class="item"><strong>{{ campanha.titulo }}</strong><p>Situação: {{ campanha.get_situacao_display }}</p><p>Objetivo: {{ campanha.objetivo_centavos|reais }}</p>{% if campanha.necessidade %}<small>Necessidade: {{ campanha.necessidade.titulo }}</small>{% endif %}</article>{% empty %}<p class="cartao">Ainda não há campanhas cadastradas.</p>{% endfor %}</div>
+{% endblock %}
