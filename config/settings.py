@@ -22,6 +22,7 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -70,3 +71,34 @@ CSRF_COOKIE_SECURE = not DEBUG
 SECURE_SSL_REDIRECT = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
+
+
+# HUIOS_RENDER_PRODUCTION_V1 — Somente ambiente Render; desenvolvimento local preservado.
+if os.environ.get("RENDER") == "true":
+    import dj_database_url
+
+    if DEBUG:
+        raise RuntimeError("Em producao configure DJANGO_DEBUG=0 no Render.")
+
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError("Configure DATABASE_URL com PostgreSQL persistente no Render.")
+
+    DATABASES["default"] = dj_database_url.parse(
+        database_url, conn_max_age=60, ssl_require=True
+    )
+
+    render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+    if not render_host:
+        raise RuntimeError("RENDER_EXTERNAL_HOSTNAME ausente no ambiente Render.")
+    if render_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(render_host)
+    CSRF_TRUSTED_ORIGINS = ["https://" + render_host]
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_HSTS_SECONDS = 3600
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        },
+    }
